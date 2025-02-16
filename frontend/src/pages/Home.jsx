@@ -9,7 +9,7 @@ const Home = () => {
     <Container>
       <Typography variant="h3" sx={{marginBottom:'20px'}}>AI-Powered Workout & Diet Planner</Typography>
       <Button variant="contained" color="primary" onClick={handleGoogleLogin}>
-        Login with Googles
+        Login with Google
       </Button>
     </Container>
   );
