@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, TextField, Button, Typography, MenuItem } from "@mui/material";
+import { Container, TextField, Button, Typography, MenuItem, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
@@ -10,6 +10,8 @@ const Dashboard = () => {
     fitnessGoal: "",
     dietaryPreferences: [],
   });
+  const [aiPlans, setAiPlans] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -65,6 +67,33 @@ const Dashboard = () => {
     }
   };
 
+  const handleGeneratePlans = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("http://localhost:5000/ai/generate-plans", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAiPlans(data.plans);
+      } else {
+        alert("Error generating plans");
+      }
+    } catch (error) {
+      console.error("Error generating plans:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>
@@ -115,7 +144,26 @@ const Dashboard = () => {
         <Button type="submit" variant="contained" color="primary">
           Save Profile
         </Button>
+        <Button
+          type="button"
+          variant="contained"
+          color="secondary"
+          onClick={handleGeneratePlans}
+          disabled={loading}
+        >
+          {loading ? "Generating..." : "Generate Workout & Diet Plans"}
+        </Button>
       </form>
+
+      {aiPlans && (
+        <Paper sx={{ padding: 3, marginTop: 3 }}>
+          <Typography variant="h5">Generated Plans:</Typography>
+          <Typography variant="body1" paragraph>
+            <strong>Workout Plan:</strong>
+            <pre>{aiPlans}</pre>
+          </Typography>
+        </Paper>
+      )}
     </Container>
   );
 };

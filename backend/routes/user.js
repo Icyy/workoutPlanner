@@ -31,6 +31,7 @@ router.get("/profile", verifyToken, async (req, res) => {
 // Update user profile
 router.put("/profile", verifyToken, async (req, res) => {
   try {
+    console.log(req.body);
     const { height, weight, fitnessGoal, dietaryPreferences } = req.body;
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
