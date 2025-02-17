@@ -4,22 +4,36 @@ const router = express.Router();
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-const getAIResponse = async (userInput) => {
+const getAIResponse = async (height, weight, fitnessGoal, dietaryPreferences) => {
   const prompt = `
-    Based on the user's input, generate a personalized workout and diet plan.
-    User details:
-    Height: ${userInput.height} cm
-    Weight: ${userInput.weight} kg
-    Fitness goal: ${userInput.fitnessGoal}
-    Dietary preferences: ${userInput.dietaryPreferences.join(", ")}
-
-    Return a diet plan with meals (including calories) and a workout plan (with exercises, sets, reps, and rest).
-  `;
+      Generate a structured JSON response for a workout and diet plan.
+      {
+        "workout": {
+          "days": [
+            { "day": "Monday", "exercises": [{ "name": "Squats", "sets": 3, "reps": "12-15" }, ...] },
+            { "day": "Tuesday", "exercises": [...] }
+          ]
+        },
+        "diet": {
+          "meals": [
+            { "name": "Breakfast", "items": ["Oatmeal with banana", "Boiled eggs"] },
+            { "name": "Lunch", "items": ["Grilled chicken", "Brown rice", "Steamed broccoli"] },
+            { "name": "Dinner", "items": ["Salmon", "Quinoa", "Mixed salad"] }
+          ]
+        }
+      }
+      Based on:
+      - Height: ${height} cm
+      - Weight: ${weight} kg
+      - Fitness goal: ${fitnessGoal}
+      - Dietary preferences: ${dietaryPreferences.join(", ")}
+    `;
 
   const messages = [
     {
       role: "system",
-      content: "You are a helpful assistant that creates workout and diet plans.",
+      content:
+        "You are a helpful assistant that creates workout and diet plans.",
     },
     {
       role: "user",
@@ -31,7 +45,7 @@ const getAIResponse = async (userInput) => {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-3.5-turbo", // or "gpt-4" if you prefer
+        model: "gpt-4o-mini", // Ensure you're using the correct model
         messages: messages,
         max_tokens: 1500,
         temperature: 0.7,
@@ -45,18 +59,22 @@ const getAIResponse = async (userInput) => {
     );
 
     console.log("AI response:", response.data);
-    return response.data.choices[0].message.content.trim(); 
+    return response.data.choices[0].message.content.trim();
   } catch (error) {
-    console.error("Error generating AI plans:", error.response ? error.response.data : error.message);
+    console.error(
+      "Error generating AI plans:",
+      error.response ? error.response.data : error.message
+    );
     throw new Error("Error with OpenAI API request");
   }
 };
 
 router.post("/generate-plans", async (req, res) => {
+  console.log(req.body);
   const { height, weight, fitnessGoal, dietaryPreferences } = req.body;
 
   try {
-    const aiResponse = await getAIResponse({ height, weight, fitnessGoal, dietaryPreferences });
+    const aiResponse = await getAIResponse(height, weight, fitnessGoal, dietaryPreferences);
     res.json({ plans: aiResponse });
   } catch (error) {
     console.error("Error generating AI plans:", error);
