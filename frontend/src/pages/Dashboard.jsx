@@ -13,6 +13,7 @@ import {
   CardContent,
   CardHeader,
   MenuItem,
+  Grid,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -74,7 +75,12 @@ const Dashboard = () => {
       if (response.ok) {
         const data = await response.json();
         console.log(data.plans);
-        setAiPlans(data.plans);
+        if (typeof data.plans === "string") {
+          const parsedData = JSON.parse(data.plans.replace(/```json|```/g, "").trim());
+          setAiPlans(parsedData);
+        } else {
+          setAiPlans(data.plans);
+        }
       } else {
         alert("Error generating plans");
       }
@@ -87,27 +93,36 @@ const Dashboard = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
-        User Dashboard
+      <Typography variant="h4" gutterBottom sx={{ textAlign: "center", fontWeight: "bold" }}>
+        Generate Your Fitness Plan
       </Typography>
-      <TextField
-        label="Height (cm)"
-        name="height"
-        type="number"
-        value={userData.height}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Weight (kg)"
-        name="weight"
-        type="number"
-        value={userData.weight}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
+
+      {/* User Inputs */}
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <TextField
+            label="Height (cm)"
+            name="height"
+            type="number"
+            value={userData.height}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Weight (kg)"
+            name="weight"
+            type="number"
+            value={userData.weight}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+        </Grid>
+      </Grid>
+
       <TextField
         select
         label="Fitness Goal"
@@ -121,6 +136,7 @@ const Dashboard = () => {
         <MenuItem value="muscle gain">Muscle Gain</MenuItem>
         <MenuItem value="maintenance">Maintenance</MenuItem>
       </TextField>
+
       <TextField
         label="Dietary Preferences (comma separated)"
         name="dietaryPreferences"
@@ -134,99 +150,101 @@ const Dashboard = () => {
         fullWidth
         margin="normal"
       />
+
       <Button
         variant="contained"
         color="secondary"
         onClick={handleGeneratePlans}
         disabled={loading}
+        sx={{ marginTop: 2, width: "100%" }}
       >
         {loading ? "Generating..." : "Generate Workout & Diet Plans"}
       </Button>
 
-      {aiPlans ? (
-        <>
+      {/* Plans Display */}
+      {aiPlans && (
+        <Grid container spacing={3} sx={{ marginTop: 3 }}>
           {/* Workout Plan */}
-          {aiPlans.workout &&
-            aiPlans.workout.days &&
-            aiPlans.workout.days.length > 0 && (
-              <Card sx={{ marginTop: 3, padding: 2 }}>
-                <CardHeader
-                  title="Workout Plan"
-                  sx={{
-                    textAlign: "center",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    padding: 1,
-                    borderRadius: "5px",
-                  }}
-                />
-                <CardContent>
-                  {aiPlans.workout.days.map((day, index) => (
-                    <Paper
-                      key={index}
-                      sx={{
-                        padding: 2,
-                        marginBottom: 2,
-                        backgroundColor: "#f5f5f5",
-                      }}
-                    >
-                      <Typography variant="h6">{day.day}</Typography>
-                      <List>
-                        {day.exercises.map((exercise, idx) => (
-                          <ListItem key={idx}>
-                            <ListItemText
-                              primary={`${exercise.name} - ${exercise.sets} sets x ${exercise.reps} reps`}
-                            />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Paper>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ padding: 2 }}>
+              <CardHeader
+                title="Workout Plan"
+                sx={{
+                  textAlign: "center",
+                  backgroundColor: "#1976d2",
+                  color: "white",
+                  padding: 1,
+                  borderRadius: "5px",
+                }}
+              />
+              <CardContent>
+                {aiPlans.workout?.days?.map((day, index) => (
+                  <Paper
+                    key={index}
+                    sx={{
+                      padding: 2,
+                      marginBottom: 2,
+                      backgroundColor: "#f5f5f5",
+                      borderLeft: "5px solid #1976d2",
+                    }}
+                  >
+                    <Typography variant="h6">{day.day}</Typography>
+                    <List>
+                      {day.exercises.map((exercise, idx) => (
+                        <ListItem key={idx}>
+                          <ListItemText
+                            primary={`${exercise.name} - ${exercise.sets} sets x ${exercise.reps} reps`}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Paper>
+                ))}
+              </CardContent>
+            </Card>
+          </Grid>
 
           {/* Diet Plan */}
-          {aiPlans.diet &&
-            aiPlans.diet.meals &&
-            aiPlans.diet.meals.length > 0 && (
-              <Card sx={{ marginTop: 3, padding: 2 }}>
-                <CardHeader
-                  title="Diet Plan"
-                  sx={{
-                    textAlign: "center",
-                    backgroundColor: "#2e7d32",
-                    color: "white",
-                    padding: 1,
-                    borderRadius: "5px",
-                  }}
-                />
-                <CardContent>
-                  {aiPlans.diet.meals.map((meal, index) => (
-                    <Paper
-                      key={index}
-                      sx={{
-                        padding: 2,
-                        marginBottom: 2,
-                        backgroundColor: "#f5f5f5",
-                      }}
-                    >
-                      <Typography variant="h6">{meal.name}</Typography>
-                      <List>
-                        {meal.items.map((item, idx) => (
-                          <ListItem key={idx}>
-                            <ListItemText primary={item} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Paper>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ padding: 2 }}>
+              <CardHeader
+                title="Diet Plan"
+                sx={{
+                  textAlign: "center",
+                  backgroundColor: "#2e7d32",
+                  color: "white",
+                  padding: 1,
+                  borderRadius: "5px",
+                }}
+              />
+              <CardContent>
+                <Grid container spacing={2}>
+                  {aiPlans.diet?.meals?.map((meal, index) => (
+                    <Grid item xs={12} key={index}>
+                      <Card sx={{ padding: 2, backgroundColor: "#f5f5f5" }}>
+                        <Typography variant="h6" sx={{ textAlign: "center" }}>
+                          {meal.name}
+                        </Typography>
+                        <Divider sx={{ marginY: 1 }} />
+                        <List>
+                          {meal.items.map((item, idx) => (
+                            <ListItem key={idx}>
+                              <ListItemText primary={item} />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Card>
+                    </Grid>
                   ))}
-                </CardContent>
-              </Card>
-            )}
-        </>
-      ) : (
-        <Typography variant="h6" sx={{ color: "red", marginTop: 2 }}>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      )}
+
+      {!aiPlans && (
+        <Typography variant="h6" sx={{ color: "red", marginTop: 2, textAlign: "center" }}>
           No plans generated. Please try again.
         </Typography>
       )}

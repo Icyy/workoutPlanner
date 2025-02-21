@@ -45,7 +45,7 @@ const getAIResponse = async (height, weight, fitnessGoal, dietaryPreferences) =>
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-4o-mini", // Ensure you're using the correct model
+        model: "gpt-4o-mini",
         messages: messages,
         max_tokens: 1500,
         temperature: 0.7,
