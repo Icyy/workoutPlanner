@@ -27,7 +27,8 @@ const Dashboard = () => {
   });
   const [aiPlans, setAiPlans] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [dietPlan, setDietPlans] = useState(null);
+  const [workoutPlan, setWorkoutPlan] = useState(null);
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token");
@@ -74,10 +75,11 @@ const Dashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data.plans);
         if (typeof data.plans === "string") {
           const parsedData = JSON.parse(data.plans.replace(/```json|```/g, "").trim());
           setAiPlans(parsedData);
+          setDietPlans(parsedData.diet.meals)
+          setWorkoutPlan(parsedData.workout.days)
         } else {
           setAiPlans(data.plans);
         }
@@ -93,7 +95,7 @@ const Dashboard = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom sx={{ textAlign: "center", fontWeight: "bold" }}>
+      <Typography variant="h4" gutterBottom sx={{ textAlign: "center", fontWeight: "bold", color:'black' }}>
         Generate Your Fitness Plan
       </Typography>
 
@@ -108,6 +110,8 @@ const Dashboard = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
+            
+            
           />
         </Grid>
         <Grid item xs={6}>
@@ -156,7 +160,7 @@ const Dashboard = () => {
         color="secondary"
         onClick={handleGeneratePlans}
         disabled={loading}
-        sx={{ marginTop: 2, width: "100%" }}
+        sx={{ marginTop: 2, width: "100%", backgroundColor:'rgb(223, 139, 38)' }}
       >
         {loading ? "Generating..." : "Generate Workout & Diet Plans"}
       </Button>
@@ -171,8 +175,8 @@ const Dashboard = () => {
                 title="Workout Plan"
                 sx={{
                   textAlign: "center",
-                  backgroundColor: "#1976d2",
-                  color: "white",
+                  backgroundColor: "rgb(223, 139, 38)",
+                  color: "rgb(39, 39, 38)",
                   padding: 1,
                   borderRadius: "5px",
                 }}
@@ -211,8 +215,8 @@ const Dashboard = () => {
                 title="Diet Plan"
                 sx={{
                   textAlign: "center",
-                  backgroundColor: "#2e7d32",
-                  color: "white",
+                  backgroundColor: "rgb(113, 214, 29)",
+                  color: "black",
                   padding: 1,
                   borderRadius: "5px",
                 }}
@@ -245,7 +249,7 @@ const Dashboard = () => {
 
       {!aiPlans && (
         <Typography variant="h6" sx={{ color: "red", marginTop: 2, textAlign: "center" }}>
-          No plans generated. Please try again.
+          Click here to generate plan!
         </Typography>
       )}
     </Container>
