@@ -29,6 +29,10 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [dietPlan, setDietPlans] = useState(null);
   const [workoutPlan, setWorkoutPlan] = useState(null);
+
+
+
+
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token");
@@ -95,7 +99,7 @@ const Dashboard = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom sx={{ textAlign: "center", fontWeight: "bold", color:'black' }}>
+      <Typography variant="h4" gutterBottom sx={{ textAlign: "center", fontWeight: "bold", color:'rgb(82, 52, 15)' }}>
         Generate Your Fitness Plan
       </Typography>
 
@@ -248,7 +252,7 @@ const Dashboard = () => {
       )}
 
       {!aiPlans && (
-        <Typography variant="h6" sx={{ color: "red", marginTop: 2, textAlign: "center" }}>
+        <Typography variant="h6" sx={{ color: "grey", marginTop: 2, textAlign: "center" }}>
           Click here to generate plan!
         </Typography>
       )}
